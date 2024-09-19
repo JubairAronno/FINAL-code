@@ -9,31 +9,44 @@ void clearInputBuffer() {
 }
 
 unordered_map<string, string> readUserDatafromfilelogin(const string& filename) {
-    unordered_map<string, string> a;
-    fstream infile(filename, ios::in);
-    string username, password;
-    if (infile.is_open()) {
-        while (infile >> username >> password) {
-            a[username] = password;
-        }
-        infile.close();
-    } else {
-        cout << "Error opening file for reading!" << endl;
+    unordered_map<string, string> userMap;
+    ifstream file(filename);
+
+    if (!file.is_open()) {
+        cerr << "Error opening file for reading.\n";
+        return userMap;
     }
-    return a;
+
+    string line;
+    while (getline(file, line)) {
+        size_t delimiterPos = line.find('|');
+        if (delimiterPos != string::npos) {
+            string username = line.substr(0, delimiterPos);
+            string password = line.substr(delimiterPos + 1);
+            userMap[username] = password;
+        }
+    }
+
+    file.close();
+    return userMap;
 }
 
+
 void writeUserDatatofilelogin(const string& filename, const unordered_map<string, string>& a) {
-    fstream outfile(filename, ios::out);
-    if (outfile.is_open()) {
-        for (const auto& pair : a) {
-            outfile << pair.first << " " << pair.second << "\n";
-        }
-        outfile.close();
-    } else {
-        cout << "Error opening file for writing!" << endl;
+    ofstream file(filename);
+
+    if (!file.is_open()) {
+        cerr << "Error opening file for writing.\n";
+        return;
     }
+
+    for (const auto& pair : a) {
+        file << pair.first << '|' << pair.second << '\n';
+    }
+
+    file.close();
 }
+
 
 struct Student {
     int rollNumber;
@@ -333,6 +346,10 @@ void menu() {
     } while (choice != 8);
 }
 
+unordered_map<string, string> readUserDatafromfilelogin(const string& filename);
+void writeUserDatatofilelogin(const string& filename, const unordered_map<string, string>& a);
+void menu(); 
+
 int main() {
     string filename = "userdata.txt";
     unordered_map<string, string> a = readUserDatafromfilelogin(filename);
@@ -342,9 +359,10 @@ int main() {
     int existing_username_count = 0;
 
     while (true) {
-        cout << "1. Login\n2. Register\n3. Exit\nEnter option: ";
+        cout << "1. Login\n2. Register\n3. Reset Password\n4. Exit\nEnter option: ";
         string option;
         cin >> option;
+        cin.ignore();  // Ignore any leftover newline character
 
         if (option == "1") {
             invalid_option_count = 0;
@@ -356,7 +374,7 @@ int main() {
 
             cout << "Enter username: ";
             string username;
-            cin >> username;
+            getline(cin, username);  // Using getline to accept spaces
 
             if (a.find(username) == a.end()) {
                 cout << "Invalid username\n";
@@ -385,8 +403,8 @@ int main() {
 
             if (a[username] == password) {
                 cout << "Login successful\n";
-                menu(); 
-                break;  
+                menu();  // Call the menu function to access student management
+                break;   // Exit the login loop after successful login
             } else {
                 cout << "Invalid password\n";
                 attempt_count++;
@@ -398,42 +416,102 @@ int main() {
             invalid_option_count = 0;
             cout << "Enter new username: ";
             string username;
-            cin >> username;
+            getline(cin, username);  // Using getline to accept spaces
 
-            if (a.find(username) == a.end()) {
-                existing_username_count = 0;
-                cout << "Enter new password: ";
-                string password;
-                char ch;
-                while ((ch = _getch()) != '\r') { 
-                    if (ch == '\b') { 
-                        if (!password.empty()) {
-                            cout << "\b \b";
-                            password.pop_back();
-                        }
-                    } else {
-                        password.push_back(ch);
-                        cout << '*';
-                    }
-                }
-                cout << endl;
-
-                a[username] = password;
-                writeUserDatatofilelogin(filename, a);
-                cout << "Registration successful\n";
-            } else {
+            // Check if username already exists
+            if (a.find(username) != a.end()) {
                 cout << "Username already exists\n";
                 existing_username_count++;
                 if (existing_username_count >= 3 && existing_username_count < 5) {
                     cout << "Attempt " << existing_username_count << " failed. " << 5 - existing_username_count << " attempt(s) left.\n";
                 } else if (existing_username_count >= 5) {
-                    cout << "You have entered existing username 5 times. You cannot register anymore.\n";
+                    cout << "You have entered an existing username 5 times. You cannot register anymore.\n";
                     break;
                 }
+                continue; // Skip the rest of registration if username exists
             }
-        } else if (option == "3") {
+
+            cout << "Enter new password: ";
+            string password;
+            char ch;
+            while ((ch = _getch()) != '\r') { 
+                if (ch == '\b') { 
+                    if (!password.empty()) {
+                        cout << "\b \b";
+                        password.pop_back();
+                    }
+                } else {
+                    password.push_back(ch);
+                    cout << '*';
+                }
+            }
+            cout << endl;
+
+            a[username] = password;
+            writeUserDatatofilelogin(filename, a);
+            cout << "Registration successful\n";
+        } else if (option == "3") {  // Password reset option
             invalid_option_count = 0;
             existing_username_count = 0;
+
+            if (attempt_count >= 5) {
+                cout << "You have tried 5 times and you cannot try anymore.\n";
+                break;
+            }
+
+            cout << "Enter username for password reset: ";
+            string username;
+            getline(cin, username);  // Using getline to accept spaces
+
+            if (a.find(username) == a.end()) {
+                cout << "Username not found\n";
+                attempt_count++;
+                if (attempt_count >= 3 && attempt_count < 5) {
+                    cout << "Attempt " << attempt_count << " failed. " << 5 - attempt_count << " attempt(s) left.\n";
+                }
+                continue;
+            }
+
+            string newPassword, confirmPassword;
+
+            cout << "Enter new password: ";
+            char ch;
+            while ((ch = _getch()) != '\r') { 
+                if (ch == '\b') { 
+                    if (!newPassword.empty()) {
+                        cout << "\b \b";
+                        newPassword.pop_back();
+                    }
+                } else {
+                    newPassword.push_back(ch);
+                    cout << '*';
+                }
+            }
+            cout << endl;
+
+            cout << "Confirm new password: ";
+            while ((ch = _getch()) != '\r') { 
+                if (ch == '\b') { 
+                    if (!confirmPassword.empty()) {
+                        cout << "\b \b";
+                        confirmPassword.pop_back();
+                    }
+                } else {
+                    confirmPassword.push_back(ch);
+                    cout << '*';
+                }
+            }
+            cout << endl;
+
+            if (newPassword == confirmPassword) {
+                a[username] = newPassword;
+                writeUserDatatofilelogin(filename, a);
+                cout << "Password reset successful.\n";
+            } else {
+                cout << "Passwords do not match. Please try again.\n";
+            }
+
+        } else if (option == "4") {
             cout << "Exiting\n";
             break;
         } else {
@@ -450,4 +528,3 @@ int main() {
 
     return 0;
 }
-
