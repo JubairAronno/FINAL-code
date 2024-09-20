@@ -5,7 +5,7 @@ using namespace std;
 
 void clearInputBuffer() {
     cin.clear();
-    while (cin.get() != '\n'); 
+    while (cin.get() != '\n');
 }
 
 unordered_map<string, string> readUserDatafromfilelogin(const string& filename) {
@@ -31,7 +31,6 @@ unordered_map<string, string> readUserDatafromfilelogin(const string& filename) 
     return userMap;
 }
 
-
 void writeUserDatatofilelogin(const string& filename, const unordered_map<string, string>& a) {
     ofstream file(filename);
 
@@ -46,7 +45,6 @@ void writeUserDatatofilelogin(const string& filename, const unordered_map<string
 
     file.close();
 }
-
 
 struct Student {
     int rollNumber;
@@ -73,13 +71,12 @@ void writeStudentsToFile() {
 
 void addStudent(int rollNumber, const string& name, float cgpa, char gender) {
     while (true) {
-        
         if (students.find(rollNumber) != students.end()) {
             cout << "Error: Roll number " << rollNumber << " already exists. Please enter a unique roll number.\n";
             cout << "Enter a new roll number: ";
             if (!(cin >> rollNumber) || rollNumber <= 0) {
                 cout << "Invalid input. Roll number must be a positive integer.\n";
-                clearInputBuffer(); 
+                clearInputBuffer();
             } else {
                 break;
             }
@@ -88,7 +85,6 @@ void addStudent(int rollNumber, const string& name, float cgpa, char gender) {
         }
     }
 
-  
     Student newStudent = {rollNumber, name, cgpa, gender};
 
     if (gender == 'M' || gender == 'm') {
@@ -99,8 +95,7 @@ void addStudent(int rollNumber, const string& name, float cgpa, char gender) {
 
     students[rollNumber] = newStudent;
 
- 
-    writeStudentsToFile(); 
+    writeStudentsToFile();
 
     cout << "Student added successfully.\n";
 }
@@ -156,14 +151,14 @@ void updateStudent(int rollNumber) {
 
         if (!(cin >> choice) || choice < 1 || choice > 4) {
             cout << "Invalid choice. Please enter a number between 1 and 4.\n";
-            clearInputBuffer(); 
+            clearInputBuffer();
             return;
         }
 
         switch (choice) {
             case 1:
                 cout << "Enter new name: ";
-                cin.ignore();  
+                cin.ignore();
                 getline(cin, student.name);
                 break;
             case 2:
@@ -171,7 +166,7 @@ void updateStudent(int rollNumber) {
                     cout << "Enter new CGPA: ";
                     if (!(cin >> student.cgpa) || student.cgpa < 0 || student.cgpa > 4) {
                         cout << "Invalid input. CGPA should be between 0 and 4.\n";
-                        clearInputBuffer(); 
+                        clearInputBuffer();
                     } else {
                         break;
                     }
@@ -179,21 +174,18 @@ void updateStudent(int rollNumber) {
                 break;
             case 3:
                 do {
-                    
                     if (student.gender == 'M' || student.gender == 'm') {
                         boysCount--;
                     } else if (student.gender == 'F' || student.gender == 'f') {
                         girlsCount--;
                     }
 
-                   
                     cout << "Enter new gender (M/F): ";
                     cin >> student.gender;
                     if (student.gender != 'M' && student.gender != 'm' && student.gender != 'F' && student.gender != 'f') {
                         cout << "Invalid input. Please enter 'M' or 'F'.\n";
-                        clearInputBuffer(); 
+                        clearInputBuffer();
                     } else {
-                        
                         if (student.gender == 'M' || student.gender == 'm') {
                             boysCount++;
                         } else if (student.gender == 'F' || student.gender == 'f') {
@@ -213,7 +205,6 @@ void updateStudent(int rollNumber) {
         cout << "Student with roll number " << rollNumber << " not found.\n";
     }
 }
-
 
 void printGenderCounts() {
     cout << "\nCount of Students:\n";
@@ -255,36 +246,35 @@ void menu() {
         switch (choice) {
             case 1:
                 do {
-                    cout << "Enter student data:\n";
-                    cout << "Roll Number: ";
+                    cout << "Enter Roll Number: ";
                     if (!(cin >> rollNumber) || rollNumber <= 0) {
                         cout << "Invalid input. Roll number must be a positive integer.\n";
-                        clearInputBuffer(); 
+                        clearInputBuffer();
                     } else {
                         break;
                     }
                 } while (true);
 
-                cout << "Name: ";
-                cin.ignore(); 
+                cout << "Enter Name: ";
+                cin.ignore();
                 getline(cin, name);
 
                 do {
-                    cout << "CGPA: ";
+                    cout << "Enter CGPA: ";
                     if (!(cin >> cgpa) || cgpa < 0 || cgpa > 4) {
                         cout << "Invalid input. CGPA should be between 0 and 4.\n";
-                        clearInputBuffer(); 
+                        clearInputBuffer();
                     } else {
                         break;
                     }
                 } while (true);
 
                 do {
-                    cout << "Gender (M/F): ";
+                    cout << "Enter Gender (M/F): ";
                     cin >> gender;
                     if (gender != 'M' && gender != 'm' && gender != 'F' && gender != 'f') {
-                        cout << "Invalid input. Gender should be 'M' or 'F'.\n";
-                        clearInputBuffer(); 
+                        cout << "Invalid input. Please enter 'M' or 'F'.\n";
+                        clearInputBuffer();
                     } else {
                         break;
                     }
@@ -294,13 +284,9 @@ void menu() {
                 break;
 
             case 2:
-                cout << "Enter roll number to find: ";
-                if (!(cin >> rollNumber) || rollNumber <= 0) {
-                    cout << "Invalid input. Roll number must be a positive integer.\n";
-                    clearInputBuffer(); 
-                } else {
-                    findStudentByRollNumber(rollNumber);
-                }
+                cout << "Enter Roll Number: ";
+                cin >> rollNumber;
+                findStudentByRollNumber(rollNumber);
                 break;
 
             case 3:
@@ -308,23 +294,15 @@ void menu() {
                 break;
 
             case 4:
-                cout << "Enter roll number to delete: ";
-                if (!(cin >> rollNumber) || rollNumber <= 0) {
-                    cout << "Invalid input. Roll number must be a positive integer.\n";
-                    clearInputBuffer(); 
-                } else {
-                    deleteStudent(rollNumber);
-                }
+                cout << "Enter Roll Number: ";
+                cin >> rollNumber;
+                deleteStudent(rollNumber);
                 break;
 
             case 5:
-                cout << "Enter roll number to update: ";
-                if (!(cin >> rollNumber) || rollNumber <= 0) {
-                    cout << "Invalid input. Roll number must be a positive integer.\n";
-                    clearInputBuffer(); 
-                } else {
-                    updateStudent(rollNumber);
-                }
+                cout << "Enter Roll Number: ";
+                cin >> rollNumber;
+                updateStudent(rollNumber);
                 break;
 
             case 6:
@@ -343,8 +321,10 @@ void menu() {
                 cout << "Invalid choice. Please enter a number between 1 and 8.\n";
                 break;
         }
+
     } while (choice != 8);
 }
+
 
 unordered_map<string, string> readUserDatafromfilelogin(const string& filename);
 void writeUserDatatofilelogin(const string& filename, const unordered_map<string, string>& a);
@@ -362,7 +342,7 @@ int main() {
         cout << "1. Login\n2. Register\n3. Reset Password\n4. Exit\nEnter option: ";
         string option;
         cin >> option;
-        cin.ignore();  // Ignore any leftover newline character
+        cin.ignore();  
 
         if (option == "1") {
             invalid_option_count = 0;
@@ -374,7 +354,7 @@ int main() {
 
             cout << "Enter username: ";
             string username;
-            getline(cin, username);  // Using getline to accept spaces
+            getline(cin, username); 
 
             if (a.find(username) == a.end()) {
                 cout << "Invalid username\n";
@@ -403,8 +383,8 @@ int main() {
 
             if (a[username] == password) {
                 cout << "Login successful\n";
-                menu();  // Call the menu function to access student management
-                break;   // Exit the login loop after successful login
+                menu();  
+                break;   
             } else {
                 cout << "Invalid password\n";
                 attempt_count++;
@@ -416,9 +396,9 @@ int main() {
             invalid_option_count = 0;
             cout << "Enter new username: ";
             string username;
-            getline(cin, username);  // Using getline to accept spaces
+            getline(cin, username);  
 
-            // Check if username already exists
+            
             if (a.find(username) != a.end()) {
                 cout << "Username already exists\n";
                 existing_username_count++;
@@ -428,7 +408,7 @@ int main() {
                     cout << "You have entered an existing username 5 times. You cannot register anymore.\n";
                     break;
                 }
-                continue; // Skip the rest of registration if username exists
+                continue; 
             }
 
             cout << "Enter new password: ";
@@ -450,7 +430,7 @@ int main() {
             a[username] = password;
             writeUserDatatofilelogin(filename, a);
             cout << "Registration successful\n";
-        } else if (option == "3") {  // Password reset option
+        } else if (option == "3") {  
             invalid_option_count = 0;
             existing_username_count = 0;
 
@@ -461,7 +441,7 @@ int main() {
 
             cout << "Enter username for password reset: ";
             string username;
-            getline(cin, username);  // Using getline to accept spaces
+            getline(cin, username); 
 
             if (a.find(username) == a.end()) {
                 cout << "Username not found\n";
